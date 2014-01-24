@@ -14,6 +14,7 @@ import com.google.android.glass.media.CameraManager;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import butterknife.InjectView;
 import cz.destil.glasquare.App;
@@ -22,10 +23,12 @@ import cz.destil.glasquare.api.Api;
 import cz.destil.glasquare.api.Auth;
 import cz.destil.glasquare.api.CheckIns;
 import cz.destil.glasquare.api.Photos;
+import cz.destil.glasquare.api.Users;
 import cz.destil.glasquare.util.BaseAsyncTask;
 import cz.destil.glasquare.util.ImageUtils;
 import cz.destil.glasquare.util.IntentUtils;
 import cz.destil.glasquare.util.LocationUtils;
+import cz.destil.glasquare.util.PrepareMention;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -50,6 +53,9 @@ public class CheckInActivity extends ProgressActivity {
     private String mShout = "#throughglass"; // default shout
     private boolean mAddingPhoto = false;
     private File mPhoto;
+    private ArrayList<Users.FoursquareUser> mUsers = new ArrayList<Users.FoursquareUser>();
+    private String mFinalShout;
+    private String mFinalMentions;
     private CheckIns.CheckInResponse mCheckInResponse;
 
     public static void call(Activity activity, String venueId) {
@@ -81,9 +87,10 @@ public class CheckInActivity extends ProgressActivity {
         int accuracy = (int) location.getAccuracy();
         int altitude = (int) location.getAltitude();
         final String token = Auth.getToken();
+
         showProgress(R.string.checking_in);
         showShout();
-        Api.get().create(CheckIns.class).add(token, venueId, ll, mShout, accuracy, altitude, new Callback<CheckIns.CheckInResponse>() {
+        Api.get().create(CheckIns.class).add(token, venueId, ll, mFinalShout, mFinalMentions, accuracy, altitude, new Callback<CheckIns.CheckInResponse>() {
             @Override
             public void success(final CheckIns.CheckInResponse checkInResponse, Response response) {
                 mCheckInResponse = checkInResponse;
@@ -167,7 +174,11 @@ public class CheckInActivity extends ProgressActivity {
                 return true;
             case R.id.menu_shout:
                 mMenuItemSelected = true;
-                IntentUtils.startSpeechRecognition(this);
+                IntentUtils.startSpeechRecognition(this, IntentUtils.SpeechRequestType.SHOUT);
+                return true;
+            case R.id.menu_mention_friend:
+                mMenuItemSelected = true;
+                IntentUtils.startSpeechRecognition(this, IntentUtils.SpeechRequestType.MENTION);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -176,23 +187,54 @@ public class CheckInActivity extends ProgressActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         String text = IntentUtils.processSpeechRecognitionResult(requestCode, resultCode, data);
+        Users.FoursquareUser user = IntentUtils.processSearchForUserResult(requestCode, resultCode, data);
         if (text != null) {
-            mShout = text;
-            showShout();
+
+            switch (requestCode) {
+
+                case IntentUtils.SHOUT_SPEECH_REQUEST:
+                    mShout = text;
+                    break;
+                case IntentUtils.USER_SPEECH_REQUEST:
+                    UsersActivity.call(this, text);
+                    return;
+            }
+
         } else if (requestCode == IntentUtils.TAKE_PICTURE_REQUEST && resultCode == Activity.RESULT_OK) {
             mAddingPhoto = true;
             mPhoto = new File(data.getStringExtra(CameraManager.EXTRA_PICTURE_FILE_PATH));
             File thumbnail = new File(data.getStringExtra(CameraManager.EXTRA_THUMBNAIL_FILE_PATH));
             Picasso.with(App.get()).load(thumbnail).into(vBackground);
+
+        } else if(requestCode == IntentUtils.USER_SEARCH_REQUEST && user != null) {
+            mUsers.add(user);
+            updateShout();
         }
+
+        showShout();
         restartGrace();
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    private void updateShout() {
+
+        // Default case, no friends mentioned
+        mFinalShout = mShout;
+
+        if(mUsers == null) return;
+        if(mUsers.isEmpty()) return;
+
+        PrepareMention prep = new PrepareMention(mShout, mUsers);
+        mFinalShout = prep.getShout();
+        mFinalMentions = prep.getMentions();
+
+    }
 
     private void showShout() {
-        if (!TextUtils.isEmpty(mShout)) {
-            vPrimaryNotification.setText(mShout);
+        updateShout();
+
+        if (!TextUtils.isEmpty(mFinalShout)) {
+            vPrimaryNotification.setText(mFinalShout);
             vPrimaryNotification.setVisibility(View.VISIBLE);
         }
     }

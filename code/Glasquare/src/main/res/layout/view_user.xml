@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    style="@style/Layout.Card"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ImageView
+        android:id="@+id/image"
+        style="@style/ImageView.Left"/>
+
+    <LinearLayout style="@style/Layout.Right">
+
+        <TextView
+            android:id="@+id/first_name"
+            style="@style/TextView.TitlePart"/>
+
+        <TextView
+            android:id="@+id/last_name"
+            style="@style/TextView.TitlePart"
+            />
+    </LinearLayout>
+</LinearLayout>

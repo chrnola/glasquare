@@ -9,4 +9,8 @@
         android:id="@+id/menu_shout"
         android:icon="@drawable/ic_menu_comment"
         android:title="@string/change_shout" />
+    <item
+        android:id="@+id/menu_mention_friend"
+        android:icon="@drawable/ic_menu_friend"
+        android:title="@string/mention_friend" />
 </menu>
