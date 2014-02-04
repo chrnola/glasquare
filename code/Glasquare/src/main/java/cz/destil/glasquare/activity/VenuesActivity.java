@@ -46,6 +46,7 @@ public class VenuesActivity extends CardScrollActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         if (mSelectedVenue != null) {
             menu.findItem(R.id.menu_tips).setEnabled(mSelectedVenue.hasTips);
+            menu.findItem(R.id.menu_specials).setEnabled(!mSelectedVenue.specials.isEmpty());
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -59,6 +60,9 @@ public class VenuesActivity extends CardScrollActivity {
                     return true;
                 case R.id.menu_tips:
                     TipsActivity.call(this, mSelectedVenue.id);
+                    return true;
+                case R.id.menu_specials:
+                    SpecialsActivity.call(this, mSelectedVenue.specials);
                     return true;
                 case R.id.menu_check_in:
                     CheckInActivity.call(this, mSelectedVenue.id);

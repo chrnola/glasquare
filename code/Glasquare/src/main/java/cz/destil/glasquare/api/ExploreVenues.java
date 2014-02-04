@@ -1,5 +1,8 @@
 package cz.destil.glasquare.api;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +33,7 @@ public interface ExploreVenues {
             List<Venue> venues = new ArrayList<Venue>();
             for (FoursquareItem group : response.groups.get(0).items) {
                 String photo = null;
+                ArrayList<FoursquareSpecial> specials = new ArrayList<FoursquareSpecial>();
                 if (group.venue.photos.groups.size() > 0) {
                     FoursquarePhotoGroupItem item = group.venue.photos.groups.get(0).items.get(0);
                     photo = item.prefix + "cap" + VenuesAdapter.MAX_IMAGE_HEIGHT + item.suffix;
@@ -40,8 +44,11 @@ public interface ExploreVenues {
                 if (group.venue.categories.size() > 0) {
                     category = group.venue.categories.get(0).name;
                 }
+                if(group.venue.specials.count > 0){
+                    specials.addAll(group.venue.specials.items);
+                }
                 venues.add(new Venue(group.venue.name, category, photo, group.venue.location.distance,
-                        group.venue.location.lat, group.venue.location.lng, hours, group.venue.id, hasTips));
+                        group.venue.location.lat, group.venue.location.lng, hours, group.venue.id, hasTips, specials));
             }
             return venues;
         }
@@ -57,9 +64,10 @@ public interface ExploreVenues {
         public double longitude;
         public String hours;
         public boolean hasTips;
+        public ArrayList<FoursquareSpecial> specials;
 
         public Venue(String name, String category, String imageUrl, int distance, double latitude, double longitude, String hours, String id,
-                     boolean hasTips) {
+                     boolean hasTips, ArrayList<FoursquareSpecial> specials) {
             this.name = name;
             this.category = category;
             this.imageUrl = imageUrl;
@@ -69,6 +77,7 @@ public interface ExploreVenues {
             this.hours = hours;
             this.id = id;
             this.hasTips = hasTips;
+            this.specials = specials;
         }
 
         @Override
@@ -113,6 +122,7 @@ public interface ExploreVenues {
         FoursquarePhotos photos;
         FoursquareLocation location;
         FoursquareHours hours;
+        FoursquareSpecials specials;
     }
 
     class FoursquareHours {
@@ -140,5 +150,47 @@ public interface ExploreVenues {
     class FoursquarePhotoGroupItem {
         String prefix;
         String suffix;
+    }
+
+    class FoursquareSpecials {
+        int count;
+        List<FoursquareSpecial> items;
+    }
+
+    class FoursquareSpecial implements Parcelable {
+        public String title;
+        public String message;
+        public String description;
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(title);
+            dest.writeString(message);
+            dest.writeString(description);
+        }
+
+        public static final Creator<FoursquareSpecial> CREATOR = new Creator<FoursquareSpecial>() {
+            @Override
+            public FoursquareSpecial createFromParcel(Parcel source) {
+                return new FoursquareSpecial(source);
+            }
+
+            @Override
+            public FoursquareSpecial[] newArray(int size) {
+                return new FoursquareSpecial[size];
+            }
+        };
+
+        private FoursquareSpecial(Parcel in) {
+            this.title = in.readString();
+            this.message = in.readString();
+            this.description = in.readString();
+        }
+
     }
 }

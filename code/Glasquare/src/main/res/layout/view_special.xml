@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    style="@style/Layout.Card"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout style="@style/Layout.Dark">
+
+        <TextView
+            android:id="@+id/title"
+            style="@style/TextView.Title"/>
+
+        <TextView
+            android:id="@+id/description"
+            style="@style/TextView.Subtitle"/>
+    </LinearLayout>
+</RelativeLayout>

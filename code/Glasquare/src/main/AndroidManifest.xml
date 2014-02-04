@@ -69,6 +69,7 @@
         </activity>
 
         <activity android:name=".activity.TipsActivity"/>
+        <activity android:name=".activity.SpecialsActivity"/>
         <activity android:name=".activity.CheckInActivity"/>
         <activity android:name=".activity.LoginActivity"/>
         <activity android:name=".activity.QrScanActivity"/>
