@@ -65,6 +65,12 @@ public class VenuesAdapter extends CardScrollAdapter {
         Picasso.with(App.get()).load(venue.imageUrl).resize(MAX_IMAGE_WIDTH, MAX_IMAGE_HEIGHT).centerCrop().placeholder(R.drawable
                 .ic_venue_placeholder).into(holder.image);
 
+        if (venue.hasSpecials() && venue.specials.get(0).hasIcon()) {
+            holder.specialIcon.setVisibility(View.VISIBLE);
+            Picasso.with(App.get()).load(venue.specials.get(0).getFullUrl())
+                    .placeholder(R.drawable.ic_special_placeholder).into(holder.specialIcon);
+        }
+
         return view;
     }
 
@@ -89,6 +95,8 @@ public class VenuesAdapter extends CardScrollAdapter {
         TextView distance;
         @InjectView(R.id.image)
         ImageView image;
+        @InjectView(R.id.special_icon)
+        ImageView specialIcon;
 
         public ViewHolder(View view) {
             ButterKnife.inject(this, view);

@@ -11,7 +11,7 @@
         android:title="@string/tips" />
     <item
         android:id="@+id/menu_specials"
-        android:icon="@drawable/ic_menu_tips"
+        android:icon="@drawable/ic_menu_special"
         android:title="Specials" />
 
     <item

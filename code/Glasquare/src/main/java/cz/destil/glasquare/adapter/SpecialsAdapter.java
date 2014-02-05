@@ -68,6 +68,7 @@ public class SpecialsAdapter extends CardScrollAdapter {
 
         holder.title.setText(mSpecials.get(i).title);
         holder.description.setText(mSpecials.get(i).description);
+        holder.message.setText(mSpecials.get(i).message);
 
         return view;
     }
@@ -77,6 +78,8 @@ public class SpecialsAdapter extends CardScrollAdapter {
         TextView title;
         @InjectView(R.id.description)
         TextView description;
+        @InjectView(R.id.message)
+        TextView message;
 
         public ViewHolder(View view) {
             ButterKnife.inject(this, view);

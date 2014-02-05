@@ -80,6 +80,10 @@ public interface ExploreVenues {
             this.specials = specials;
         }
 
+        public boolean hasSpecials() {
+            return !specials.isEmpty();
+        }
+
         @Override
         public String toString() {
             return "Venue{" +
@@ -161,6 +165,7 @@ public interface ExploreVenues {
         public String title;
         public String message;
         public String description;
+        public String icon;
 
         @Override
         public int describeContents() {
@@ -172,6 +177,7 @@ public interface ExploreVenues {
             dest.writeString(title);
             dest.writeString(message);
             dest.writeString(description);
+            dest.writeString(icon);
         }
 
         public static final Creator<FoursquareSpecial> CREATOR = new Creator<FoursquareSpecial>() {
@@ -190,6 +196,17 @@ public interface ExploreVenues {
             this.title = in.readString();
             this.message = in.readString();
             this.description = in.readString();
+            this.icon = in.readString();
+        }
+
+        public boolean hasIcon()
+        {
+            return (this.icon != null) && !this.icon.isEmpty();
+        }
+
+        public String getFullUrl()
+        {
+            return "http://foursquare.com/img/specials/" + this.icon + ".png";
         }
 
     }
